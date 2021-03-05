@@ -19,42 +19,30 @@ int height = 20;
 int x_cursor;
 int y_cursor;
 
-int y_player = 10;
-int x_player = 3;
+short y_player = 10;
+short x_player = 3;
 
 int kol_vo_platform = 15;
 
+int jumps = 3; // кол-во прыжков
+int jumpsCount; // кол-во доступных прыжков
+
+short do_x_player = x_player;
+short do_y_player = y_player;
+
 //int a = x_platforms.size();
-
-COORD makeCoord(int x, int y) {
-	COORD coord = { (SHORT)x, (SHORT)y };
-	return coord;
-}
-
-uint64_t time()
-{
-	return chrono::duration_cast<std::chrono::microseconds>(chrono::steady_clock::now().time_since_epoch()).count();
-}
-
-uint64_t tek_time = time();
-uint64_t vrem_poden = tek_time + 300;
-
-COORD nach_kard = makeCoord(0, 0);
-HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 
 vector<int>x_platforms_width;
 vector<int>y_platforms;
 vector<int>x_platforms;
 
-void y_generator()
+uint64_t time()
 {
-	uniform_int_distribution<> ot_do(2, 4);
-	for (int i = 0; i < kol_vo_platform; i++)
-	{
-		y_platforms.push_back(ot_do(gen));
-		y_platforms[i] = height - y_platforms[i] - 2;
-	}
+	return chrono::duration_cast<std::chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
 }
+
+uint64_t tek_time = time();
+uint64_t vrem_poden = tek_time + 300;
 
 void x_generator()
 {
@@ -81,54 +69,13 @@ void x_generator()
 	}
 }
 
-void log()
+void y_generator()
 {
-	setlocale(LC_ALL, "Russian");
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-	bool z = false;
-	if (z == false)
-	{
-		cout << "\n";
-		cout << "\n";
-	}
-	while (_kbhit()) // нажата ли клавиша
-		switch (_getch()) // сравниваем
-		{
-		case 'w': // сравниваем с w
-			y_player--;
-			break;
-		case 'a': // сравниваем с a
-			x_player--;
-			break;
-		case 'd': // сравниваем с d
-			x_player++;
-			break;
-		}
-	if (x_player == width - 2 || y_player == height - 2 || x_player == -1 || y_player == -1)
-	{
-		cout << "\nВы проиграли";
-		ExitProcess(0);
-	}
-	z = true;
-}
-
-void padenie_igroka()
-{
-	bool h = false;
+	uniform_int_distribution<> ot_do(2, 4);
 	for (int i = 0; i < kol_vo_platform; i++)
 	{
-		tek_time = time();
-		if (x_player >= x_platforms[i] && x_player < x_platforms_width[i] + x_platforms[i] && y_player + 1 == y_platforms[i])
-		{
-			h = true;
-		}
-	}
-	if (tek_time > vrem_poden && h == false)
-	{
-		vrem_poden = vrem_poden + 300;
-		y_player++;
-		h = false;
+		y_platforms.push_back(ot_do(gen));
+		y_platforms[i] = height - y_platforms[i] - 2;
 	}
 }
 
@@ -147,21 +94,124 @@ void draw_platforms()
 		}
 		a++;
 	}
-	if (x_cursor == x_player && y_cursor == y_player)
+	cout << " ";
+	x_cursor++;
+}
+
+bool is_on_platform(int a) {
+
+	bool x_correct;
+	x_correct = x_player >= x_platforms[a] && x_player < x_platforms_width[a] + x_platforms[a];
+	return x_correct;
+}
+
+bool is_on_any_platforms()
+{
+	bool proverka_paltform = false;
+	for (int i = 0; i < kol_vo_platform; i++)
 	{
-		cout << "@";
-		x_cursor++;
+		bool x_correct = is_on_platform(i);
+		if (x_correct == true && y_player + 1 == y_platforms[i])
+		{
+			proverka_paltform = true;
+		}
 	}
-	else
+	return proverka_paltform;
+}
+
+void jump()
+{
+
+}
+
+void padenie_igroka()
+{
+	do_y_player = y_player;
+	is_on_any_platforms();
+	tek_time = time();
+	if (tek_time > vrem_poden && is_on_any_platforms() == false)
 	{
-		cout << " ";
-		x_cursor++;
+		vrem_poden = vrem_poden + 1500;
+		y_player++;
+	}
+}
+
+void log()
+{
+	setlocale(LC_ALL, "Russian");
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	while (_kbhit()) // нажата ли клавиша
+	{
+		do_x_player = x_player;
+		do_y_player = y_player;
+		if (is_on_any_platforms() == true)
+		{
+			int c = _getch();
+			if (c == 'a')
+			{
+				x_player--;
+			}
+			else if (c == 'd')
+			{
+				x_player++;
+			}
+			else if (c == 'w')
+			{
+				int w = time();
+				do_y_player = y_player;
+				jumpsCount = jumps;
+				if (jumpsCount > 0)
+				{
+					y_player--;
+					jumpsCount--;
+				}
+				vrem_poden = w + 1500;
+			}
+
+		}
+		else
+		{
+			int c = _getch();
+			if (c == 'a')
+			{
+				x_player--;
+			}
+			else if (c == 'd')
+			{
+				x_player++;
+			}
+			else if (c == 's')
+			{
+				y_player++;
+			}
+			else if (c == 'w')
+			{
+				int w = time();
+				do_y_player = y_player;
+				if (jumpsCount > 0)
+				{
+					y_player--;
+					jumpsCount--;
+				}
+			}
+		}
+	}
+
+	if (y_player == height - 2 || x_player == -1 || y_player == -1)
+	{
+		cout << "\nВы проиграли";
+		ExitProcess(0);
+	}
+	if (x_player >= width - 2 && _getch() == 'g' && _getch() == 'o')
+	{
+		cout << "\nВы выйграли автомобиль";
+		ExitProcess(0);
 	}
 }
 
 void draw()
 {
-	SetConsoleCursorPosition(hStdOut, nach_kard); // ПЕРЕСТАВЛЯЕМ КУРСОР В НАЧАЛО
 	while (x_cursor < width)  // 20 # в ряд
 	{
 		cout << "#";
@@ -169,6 +219,7 @@ void draw()
 	}
 	cout << "\n";
 	x_cursor = 0;
+	y_cursor++;
 
 	while (y_cursor < height - 2)
 	{
@@ -189,20 +240,43 @@ void draw()
 	}
 	x_cursor = 0;
 	y_cursor = 0;
-	cout << "x_player = " << x_player << " y_player = " << y_player;
+	//cout << "x_player = " << x_player << " y_player = " << y_player;
 	fflush(stdout);
+}
+
+void draw_player()
+{
+	if (do_x_player == x_player && do_y_player == y_player)
+	{
+
+	}
+	else
+	{
+		COORD position = { do_x_player, do_y_player }; //позиция x и y
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(hConsole, position);
+		cout << ' ';
+		fflush(stdout);
+		position = { x_player, y_player }; //позиция x и y
+		SetConsoleCursorPosition(hConsole, position);
+		cout << '@';
+		fflush(stdout);
+		do_x_player = x_player;
+		do_y_player = y_player;
+	}
 }
 
 int main()
 {
-	char buf[width / 4];
-	setvbuf(stdout, buf, _IOFBF, sizeof(buf));
-	y_generator();
 	x_generator();
+	y_generator();
+	jumpsCount = jumps;
+	draw();
 	while (1)
 	{
-		log();
-		draw();
+		is_on_any_platforms();
 		padenie_igroka();
+		log();
+		draw_player();
 	}
 }
