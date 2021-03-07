@@ -1,2 +1,4 @@
 ﻿  Platformer_2.0.cpp
-  Platformer_2.0.vcxproj -> C:\Users\User\source\repos\Platformer_\Debug\Platformer_2.0.exe
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(161,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(190,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+  Platformer_2.0.vcxproj -> C:\Users\User\Desktop\Platformer\Platformer_\Debug\Platformer_2.0.exe

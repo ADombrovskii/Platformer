@@ -54,7 +54,7 @@ void x_generator()
 		x_platforms.push_back(i);
 	}
 	int o = 0;
-	x_platforms[o] = o; // 0 создание каординаты на которой будет находится 1 платформа
+	x_platforms[o] = 1; // 0 создание каординаты на которой будет находится 1 платформа
 	while (o + 1 < kol_vo_platform)
 	{
 		if (x_platforms[o + 1] + x_platforms_width[o + 1] > width)
@@ -198,14 +198,22 @@ void log()
 		}
 	}
 
-	if (y_player == height - 2 || x_player == -1 || y_player == -1)
+	if (y_player == height - 1 || x_player == 0 || y_player == -1)
 	{
+		COORD position = { 1, 19 }; //позиция x и y
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(hConsole, position);
 		cout << "\nВы проиграли";
+		fflush(stdout);
 		ExitProcess(0);
 	}
-	if (x_player >= width - 2 && _getch() == 'g' && _getch() == 'o')
+	if (x_player >= width - 1)
 	{
+		COORD position = { 1, 19 }; //позиция x и y
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(hConsole, position);
 		cout << "\nВы выйграли автомобиль";
+		fflush(stdout);
 		ExitProcess(0);
 	}
 }
@@ -221,10 +229,11 @@ void draw()
 	x_cursor = 0;
 	y_cursor++;
 
-	while (y_cursor < height - 2)
+	while (y_cursor < height - 1)
 	{
 		cout << "#";
-		while (x_cursor < width - 2) // пробелы
+		x_cursor++;
+		while (x_cursor < width - 1) // пробелы
 		{
 			draw_platforms();
 		}
