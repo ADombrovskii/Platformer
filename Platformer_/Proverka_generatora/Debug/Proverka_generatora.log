@@ -1,2 +1,4 @@
 ﻿  Proverka_generatora.cpp
-  Proverka_generatora.vcxproj -> C:\Users\User\source\repos\Platformer_\Debug\Proverka_generatora.exe
+C:\Users\User\Desktop\Platformer\Platformer_\Proverka_generatora\Proverka_generatora.cpp(161,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Proverka_generatora\Proverka_generatora.cpp(190,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+  Proverka_generatora.vcxproj -> C:\Users\User\Desktop\Platformer\Platformer_\Debug\Proverka_generatora.exe
