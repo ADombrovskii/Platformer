@@ -1,10 +1,11 @@
 ﻿  Platformer_2.0.cpp
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(53,18): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(54,21): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(211,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(219,30): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(236,30): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(242,30): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(244,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
-C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(268,26): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(55,18): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(56,21): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(143,11): warning C4018: <: несоответствие типов со знаком и без знака
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(267,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(275,30): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(292,30): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(298,30): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(300,11): warning C4244: инициализация: преобразование "uint64_t" в "int", возможна потеря данных
+C:\Users\User\Desktop\Platformer\Platformer_\Platformer_2.0\Platformer_2.0.cpp(342,26): warning C4244: =: преобразование "uint64_t" в "int", возможна потеря данных
   Platformer_2.0.vcxproj -> C:\Users\User\Desktop\Platformer\Platformer_\Debug\Platformer_2.0.exe

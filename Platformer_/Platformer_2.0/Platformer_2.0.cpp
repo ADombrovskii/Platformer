@@ -1,11 +1,14 @@
 ﻿#include <vector>
 #include <Windows.h>
-#include <iostream>
 #include <math.h>
 #include <iomanip>
 #include <conio.h> // новая библиотека
 #include <chrono>
 #include <random>
+
+#include <iostream>
+#include <string>
+#include <fstream>
 #define _USE_MATH_DEFINES
 
 using namespace std;
@@ -22,7 +25,7 @@ int y_cursor;
 short y_player = 10;
 short x_player = 3;
 
-int number_of_platforms = 15;
+int number_of_platforms = 1;
 
 int jumps = 3; // кол-во прыжков
 int jumpsCount = 0; // кол-во доступных прыжков
@@ -41,8 +44,7 @@ uint64_t time()
 	return chrono::duration_cast<std::chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
 }
 
-uint64_t current_time = time(); // текушее время 
-uint64_t fall_time = current_time + 300; // время пядения
+uint64_t fall_time = time() + 1000; // время пядения
 
 short x_enemy = width - 2;
 short y_enemy = y_player;
@@ -50,14 +52,58 @@ short y_enemy = y_player;
 short do_x_enemy = x_enemy;
 short do_y_enemy = y_enemy;
 
-int delay_flight = time() + 300;
+int delay_flight = time() + 100;
 int keystrokes_time = time() + 2000;
 
 bool is_keystrokes = true;
 
-	bool is_enemy_draw = false;
-	bool b = true;
-	bool c = true;
+bool is_enemy_draw = false;
+bool b = true;
+bool is_enemy_dead = false;
+bool enemy_rose;
+
+string get_map;
+
+void load()
+{
+	string line;
+	ifstream my_file("map2.txt");
+	if (my_file.is_open())
+	{
+		bool read_something = (bool)getline(my_file, line); // читает строку из my_file и запиcывает в line 
+		x_platforms.push_back(stoi(line));
+		//cout << line << '\n'; // '' - это 1 символ
+
+		read_something = (bool)getline(my_file, line);
+		x_platforms_width.push_back(stoi(line));
+		//cout << line << '\n'; // '' - это 1 символ
+
+		read_something = (bool)getline(my_file, line);
+		y_platforms.push_back(stoi(line));
+		//cout << line << '\n'; // '' - это 1 символ
+
+		while (read_something)
+		{
+			read_something = (bool)getline(my_file, line);
+			x_platforms.push_back(stoi(line));
+			//cout << line << '\n'; // '' - это 1 символ
+
+			read_something = (bool)getline(my_file, line);
+			x_platforms_width.push_back(stoi(line));
+			//cout << line << '\n'; // '' - это 1 символ
+
+			read_something = (bool)getline(my_file, line);
+			y_platforms.push_back(stoi(line));
+			//cout << line << '\n'; // '' - это 1 символ
+		}
+		my_file.close();
+	}
+
+	else
+	{
+		cout << "Не удалось открыть файл";
+	}
+}
 
 void x_generator()
 {
@@ -94,7 +140,7 @@ void y_generator()
 void draw_platforms()
 {
 	int a = 0;
-	while (a < number_of_platforms)
+	while (a < x_platforms.size())
 	{
 		if (y_cursor == y_platforms[a] && x_cursor == x_platforms[a])
 		{
@@ -135,10 +181,9 @@ void player_fall()
 {
 	past_y_player = y_player;
 	is_on_any_platforms();
-	current_time = time();
-	if (current_time > fall_time && is_on_any_platforms() == false)
+	if (time() > fall_time && is_on_any_platforms() == false)
 	{
-		fall_time = time() + 1500;
+		fall_time = time() + 1000;
 		y_player++;
 	}
 }
@@ -147,7 +192,7 @@ void information_output()
 {
 	if (y_player == height - 1 || x_player == 0 || y_player == -1)
 	{
-		COORD position = { 1, 25 }; //позиция x и y
+		COORD position = { 0, 25 }; //позиция x и y
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleCursorPosition(hConsole, position);
 		cout << "Вы проиграли";
@@ -156,21 +201,35 @@ void information_output()
 	}
 	if (x_player >= width - 1)
 	{
-		COORD position = { 1, 25 }; //позиция x и y
+		COORD position = { 0, 25 }; //позиция x и y
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleCursorPosition(hConsole, position);
 		cout << "Вы выйграли автомобиль";
 		fflush(stdout);
 		ExitProcess(0);
 	}
-
-	COORD position = { 1, 20 }; //позиция x и y
+	if (x_player == x_enemy && y_player == y_enemy)
+	{
+		COORD position = { 0, 23 }; //позиция x и y
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(hConsole, position);
+		cout << "Вы проиграли";
+		fflush(stdout);
+		ExitProcess(0);
+	}
+	COORD position = { 0, 20 }; //позиция x и y
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(hConsole, position);
 	cout << "x_player: " << x_player << " y_player: " << y_player;
 	fflush(stdout);
 
-	position = { 1, 21 }; //позиция x и y
+	position = { 0, 21 }; //позиция x и y
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorPosition(hConsole, position);
+	cout << "x_enemy: " << x_enemy << " y_enemy: " << y_enemy;
+	fflush(stdout);
+
+	position = { 0, 22 }; //позиция x и y
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(hConsole, position);
 	cout << is_keystrokes;
@@ -183,9 +242,6 @@ void log()
 	{
 		is_keystrokes = false;
 	}
-	setlocale(LC_ALL, "Russian");
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
 	if (is_on_any_platforms() == true)
 	{
 		jumpsCount = jumps;
@@ -215,7 +271,7 @@ void log()
 					y_player--;
 					jumpsCount--;
 				}
-				fall_time = w + 1500;
+				fall_time = w + 1000;
 				keystrokes_time = time() + 2000;
 			}
 
@@ -251,21 +307,39 @@ void log()
 			}
 		}
 	}
+	for (int i = 0; i < number_of_platforms; i++)
+	{
+		if (x_enemy == x_platforms[i] + x_platforms_width[i] && y_enemy == y_platforms[i])
+		{
+			y_enemy--;
+			enemy_rose = true;
+		}
+		else if (x_enemy == x_platforms[i] - 1 && y_enemy + 1 == y_platforms[i] && enemy_rose == true)
+		{
+			y_enemy++;
+			enemy_rose = false;
+		}
+	}
 	information_output();
 	if (is_keystrokes == false || is_enemy_draw == true)
 	{
 		if (b == true)
 		{
 			y_enemy = y_player;
-			x_enemy = x_player + 20;
+			x_enemy = x_player + 70;
 			b = false;
+			is_enemy_dead = false;
+			if (x_enemy >= 78)
+			{
+				x_enemy = 78;
+			}
 		}
 		is_enemy_draw = true;
 		if (time() > delay_flight)
 		{
 			do_x_enemy = x_enemy;
 			do_y_enemy = y_enemy;
-			delay_flight = time() + 300;
+			delay_flight = time() + 50;
 			x_enemy--;
 		}
 	}
@@ -277,20 +351,22 @@ void draw_enemy()
 	{
 
 	}
-	else if (x_enemy <= 0 && c == true)
+	else if (x_enemy <= 0 && is_enemy_dead == false)
 	{
-		COORD position = { do_x_enemy, do_y_enemy }; //позиция x и y
+		COORD position = { 1, do_y_enemy }; //позиция x и y
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 		SetConsoleCursorPosition(hConsole, position);
 		cout << ' ';
 		fflush(stdout);
-		position = { x_enemy, y_enemy }; //позиция x и y
+		position = { 0, y_enemy }; //позиция x и y
 		SetConsoleCursorPosition(hConsole, position);
 		cout << '#';
 		fflush(stdout);
-		c = false;
+		is_enemy_dead = true;
+		is_enemy_draw = false;
+		b = true;
 	}
-	else if (c == true)
+	else if (is_enemy_dead == false)
 	{
 		COORD position = { do_x_enemy, do_y_enemy }; //позиция x и y
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -365,15 +441,25 @@ void draw_player()
 
 int main()
 {
+	setlocale(LC_ALL, "Russian");
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+	/*
 	x_generator();
 	y_generator();
+	*/
+
+	load();
 	draw();
+
 	while (1)
 	{
+		/*
 		is_on_any_platforms();
 		player_fall();
 		log();
 		draw_player();
 		draw_enemy();
+		*/
 	}
 }
