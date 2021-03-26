@@ -13,44 +13,40 @@
 
 using namespace std;
 
-random_device rd;
-mt19937 gen(rd());
-
 const int width = 80;
 int height = 20;
 
 int x_cursor;
 int y_cursor;
 
-short y_player = 10;
-short x_player = 3;
-
-int number_of_platforms = 1;
-
-int jumps = 3; // кол-во прыжков
-int jumpsCount = 0; // кол-во доступных прыжков
-
-short past_x_player = x_player;
-short past_y_player = y_player;
-
-//int a = x_platforms.size();
-
 vector<int>x_platforms_width;
 vector<int>y_platforms;
 vector<int>x_platforms;
 
-uint64_t time()
-{
-	return chrono::duration_cast<std::chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
-}
+random_device rd;
+mt19937 gen(rd());
 
-uint64_t fall_time = time() + 1000; // время пядения
+int number_of_platforms = 15;
+
+short y_player = 10;
+short x_player = 3;
+
+short past_x_player = x_player;
+short past_y_player = y_player;
+
+int is_player_near_platform = false;
+int is_player_near_platform2 = false;
 
 short x_enemy = width - 2;
 short y_enemy = y_player;
 
 short do_x_enemy = x_enemy;
 short do_y_enemy = y_enemy;
+
+uint64_t time()
+{
+	return chrono::duration_cast<std::chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
+}
 
 int delay_flight = time() + 100;
 int keystrokes_time = time() + 2000;
@@ -62,85 +58,35 @@ bool b = true;
 bool is_enemy_dead = false;
 bool enemy_rose;
 
-string get_map;
+uint64_t fall_time = time() + 1000;
+
+int jumps = 3; // кол-во прыжков
+int jumpsCount = 0; // кол-во доступных прыжков
+
+bool g = false;
 
 void load()
 {
 	string line;
-	ifstream my_file("map2.txt");
-	if (my_file.is_open())
+	ifstream in("C:\\Users\\User\\Desktop\\a.txt"); // окрываем файл для чтения
+	if (in.is_open())
 	{
-		bool read_something = (bool)getline(my_file, line); // читает строку из my_file и запиcывает в line 
-		x_platforms.push_back(stoi(line));
-		//cout << line << '\n'; // '' - это 1 символ
-
-		read_something = (bool)getline(my_file, line);
-		x_platforms_width.push_back(stoi(line));
-		//cout << line << '\n'; // '' - это 1 символ
-
-		read_something = (bool)getline(my_file, line);
-		y_platforms.push_back(stoi(line));
-		//cout << line << '\n'; // '' - это 1 символ
-
-		while (read_something)
+		while (getline(in, line))
 		{
-			read_something = (bool)getline(my_file, line);
 			x_platforms.push_back(stoi(line));
-			//cout << line << '\n'; // '' - это 1 символ
-
-			read_something = (bool)getline(my_file, line);
+			getline(in, line);
 			x_platforms_width.push_back(stoi(line));
-			//cout << line << '\n'; // '' - это 1 символ
-
-			read_something = (bool)getline(my_file, line);
+			getline(in, line);
 			y_platforms.push_back(stoi(line));
-			//cout << line << '\n'; // '' - это 1 символ
 		}
-		my_file.close();
 	}
-
-	else
-	{
-		cout << "Не удалось открыть файл";
-	}
-}
-
-void x_generator()
-{
-	int a = x_platforms.size();
-	uniform_int_distribution<> ot_do(3, 5);
-	for (int i = 0; i < number_of_platforms; i++) // ширина платформ от 3 до 5 
-	{
-		x_platforms_width.push_back(ot_do(gen));
-		x_platforms.push_back(i);
-	}
-	int o = 0;
-	x_platforms[o] = 1; // 0 создание каординаты на которой будет находится 1 платформа
-	while (o + 1 < number_of_platforms)
-	{
-		x_platforms[o + 1] = x_platforms[o - 1 + 1] + x_platforms_width[o - 1 + 1] + 2;
-		if (x_platforms[o + 1] + x_platforms_width[o + 1] >= width - 2)
-		{
-			x_platforms_width[o + 1] = width - 2 - x_platforms[o + 1];
-		}
-		o++;
-	}
-}
-
-void y_generator()
-{
-	uniform_int_distribution<> ot_do(2, 4);
-	for (int i = 0; i < number_of_platforms; i++)
-	{
-		y_platforms.push_back(ot_do(gen));
-		y_platforms[i] = height - y_platforms[i] - 1;
-	}
+	in.close();     // закрываем файл
+	//cout << "End of program" << endl;
 }
 
 void draw_platforms()
 {
-	int a = 0;
-	while (a < x_platforms.size())
+	for (int a = 0; a < x_platforms.size(); a++)
 	{
 		if (y_cursor == y_platforms[a] && x_cursor == x_platforms[a])
 		{
@@ -150,25 +96,47 @@ void draw_platforms()
 				x_cursor++;
 			}
 		}
-		a++;
 	}
 	cout << " ";
 	x_cursor++;
+	fflush(stdout);
 }
 
-bool is_on_x_platform(int a) {
-
-	bool x_correct;
-	x_correct = x_player >= x_platforms[a] && x_player < x_platforms_width[a] + x_platforms[a];
-	return x_correct;
+void draw()
+{
+	while (x_cursor < width)  // 20 # в ряд
+	{
+		cout << "#";
+		x_cursor++;
+	}
+	cout << "\n";
+	x_cursor = 0;
+	y_cursor++;
+	while (y_cursor < height - 1)
+	{
+		cout << "#";
+		x_cursor++;
+		while (x_cursor < width - 1) // пробелы
+		{
+			draw_platforms();
+		}
+		cout << "#\n";
+		x_cursor = 0;
+		y_cursor++;
+	}
+	while (x_cursor < width)  // 20 # в ряд
+	{
+		cout << "#";
+		x_cursor++;
+	}
 }
 
-bool is_on_any_platforms()
+bool is_player_on_any_platforms()
 {
 	bool platform_check = false;
-	for (int i = 0; i < number_of_platforms; i++)
+	for (int i = 0; i < x_platforms.size(); i++)
 	{
-		bool x_correct = is_on_x_platform(i);
+		bool x_correct = x_player >= x_platforms[i] && x_player < x_platforms_width[i] + x_platforms[i];
 		if (x_correct == true && y_player + 1 == y_platforms[i])
 		{
 			platform_check = true;
@@ -177,11 +145,51 @@ bool is_on_any_platforms()
 	return platform_check;
 }
 
+bool is_player_under_any_platforms()
+{
+	bool platform_check2 = false;
+	for (int i = 0; i < x_platforms.size(); i++)
+	{
+		bool x_correct = x_player >= x_platforms[i] && x_player < x_platforms_width[i] + x_platforms[i];
+		if (x_correct == true && y_player - 1 == y_platforms[i])
+		{
+			platform_check2 = true;
+		}
+	}
+	return platform_check2;
+}
+
+bool left_enemy()
+{
+	is_player_near_platform = false;
+	for (int i = 0; i < x_platforms.size(); i++)
+	{
+		if (x_platforms[i] - 1 == x_player && y_platforms[i] == y_player)
+		{
+			is_player_near_platform = true;
+		}
+	}
+	return is_player_near_platform;
+}
+
+bool right_enemy()
+{
+	is_player_near_platform2 = false;
+	for (int i = 0; i < x_platforms.size(); i++)
+	{
+		if (x_platforms[i] + x_platforms_width[i] == x_player && y_platforms[i] == y_player)
+		{
+			is_player_near_platform2 = true;
+		}
+	}
+	return is_player_near_platform2;
+}
+
 void player_fall()
 {
 	past_y_player = y_player;
-	is_on_any_platforms();
-	if (time() > fall_time && is_on_any_platforms() == false)
+	is_player_on_any_platforms();
+	if (time() > fall_time && is_player_on_any_platforms() == false)
 	{
 		fall_time = time() + 1000;
 		y_player++;
@@ -190,7 +198,7 @@ void player_fall()
 
 void information_output()
 {
-	if (y_player == height - 1 || x_player == 0 || y_player == -1)
+	if (y_player == height - 1 || x_player == 0 || y_player == 0)
 	{
 		COORD position = { 0, 25 }; //позиция x и y
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -208,31 +216,10 @@ void information_output()
 		fflush(stdout);
 		ExitProcess(0);
 	}
-	if (x_player == x_enemy && y_player == y_enemy)
-	{
-		COORD position = { 0, 23 }; //позиция x и y
-		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-		SetConsoleCursorPosition(hConsole, position);
-		cout << "Вы проиграли";
-		fflush(stdout);
-		ExitProcess(0);
-	}
 	COORD position = { 0, 20 }; //позиция x и y
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(hConsole, position);
 	cout << "x_player: " << x_player << " y_player: " << y_player;
-	fflush(stdout);
-
-	position = { 0, 21 }; //позиция x и y
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleCursorPosition(hConsole, position);
-	cout << "x_enemy: " << x_enemy << " y_enemy: " << y_enemy;
-	fflush(stdout);
-
-	position = { 0, 22 }; //позиция x и y
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleCursorPosition(hConsole, position);
-	cout << is_keystrokes;
 	fflush(stdout);
 }
 
@@ -242,7 +229,7 @@ void log()
 	{
 		is_keystrokes = false;
 	}
-	if (is_on_any_platforms() == true)
+	if (is_player_on_any_platforms() == true)
 	{
 		jumpsCount = jumps;
 	}
@@ -250,64 +237,87 @@ void log()
 	{
 		past_x_player = x_player;
 		past_y_player = y_player;
-		if (is_on_any_platforms() == true)
+		int checking_the_keyboard = _getch();
+		if (right_enemy() == false)
 		{
-			int checking_the_keyboard = _getch();
 			if (checking_the_keyboard == 'a')
 			{
 				x_player--;
 			}
-			else if (checking_the_keyboard == 'd')
-			{
-				x_player++;
-			}
-			else if (checking_the_keyboard == 'w')
-			{
-				is_keystrokes = true;
-				int w = time();
-				past_y_player = y_player;
-				if (jumpsCount > 0)
-				{
-					y_player--;
-					jumpsCount--;
-				}
-				fall_time = w + 1000;
-				keystrokes_time = time() + 2000;
-			}
-
 		}
-		else
+		if (left_enemy() == false)
 		{
-			int checking_the_keyboard = _getch();
-			if (checking_the_keyboard == 'a')
-			{
-				x_player--;
-			}
-			else if (checking_the_keyboard == 'd')
+			if (checking_the_keyboard == 'd')
 			{
 				x_player++;
 			}
-			else if (checking_the_keyboard == 's')
+		}
+		if (is_player_under_any_platforms() == false)
+		{
+			if (checking_the_keyboard == 'w')
+			{
+				if (g == false)
+				{
+					is_keystrokes = true;
+					int w = time();
+					past_y_player = y_player;
+					if (jumpsCount > 0)
+					{
+						y_player--;
+						jumpsCount--;
+					}
+					fall_time = w + 1000;
+					keystrokes_time = time() + 2000;
+				}
+				else if (g == true)
+				{
+					is_keystrokes = true;
+					keystrokes_time = time() + 2000;
+					y_player--;
+				}
+			}
+		}
+		if (is_player_on_any_platforms() == false)
+		{
+			if (checking_the_keyboard == 's')
 			{
 				keystrokes_time = time() + 2000;
 				is_keystrokes = true;
 				y_player++;
 			}
-			else if (checking_the_keyboard == 'w')
+		}
+		if (checking_the_keyboard == 'x')
+		{
+			COORD position = { 0, 25 }; //позиция x и y
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleCursorPosition(hConsole, position);
+			cout << "Почему.";
+			fflush(stdout);
+			ExitProcess(0);
+		}
+		if (checking_the_keyboard == 't')
+		{
+			COORD position = { 0, 21 }; //позиция x и y
+			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleCursorPosition(hConsole, position);
+			string gc_gs;
+			cin >> gc_gs;
+			if (gc_gs == "gc")
 			{
-				keystrokes_time = time() + 2000;
-				is_keystrokes = true;
-				int w = time();
-				past_y_player = y_player;
-				if (jumpsCount > 0)
-				{
-					y_player--;
-					jumpsCount--;
-				}
+				g = true;
 			}
+			if (gc_gs == "gs")
+			{
+				g = false;
+			}
+			position = { 0, 21 }; //позиция x и y
+			hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			SetConsoleCursorPosition(hConsole, position);
+			cout << "                     ";
+			fflush(stdout);
 		}
 	}
-	for (int i = 0; i < number_of_platforms; i++)
+	for (int i = 0; i < x_platforms.size(); i++)
 	{
 		if (x_enemy == x_platforms[i] + x_platforms_width[i] && y_enemy == y_platforms[i])
 		{
@@ -320,13 +330,12 @@ void log()
 			enemy_rose = false;
 		}
 	}
-	information_output();
 	if (is_keystrokes == false || is_enemy_draw == true)
 	{
 		if (b == true)
 		{
 			y_enemy = y_player;
-			x_enemy = x_player + 70;
+			x_enemy = x_player + 10;
 			b = false;
 			is_enemy_dead = false;
 			if (x_enemy >= 78)
@@ -339,10 +348,11 @@ void log()
 		{
 			do_x_enemy = x_enemy;
 			do_y_enemy = y_enemy;
-			delay_flight = time() + 50;
+			delay_flight = time() + 150;
 			x_enemy--;
 		}
 	}
+	information_output();
 }
 
 void draw_enemy()
@@ -382,41 +392,6 @@ void draw_enemy()
 	}
 }
 
-void draw()
-{
-	while (x_cursor < width)  // 20 # в ряд
-	{
-		cout << "#";
-		x_cursor++;
-	}
-	cout << "\n";
-	x_cursor = 0;
-	y_cursor++;
-
-	while (y_cursor < height - 1)
-	{
-		cout << "#";
-		x_cursor++;
-		while (x_cursor < width - 1) // пробелы
-		{
-			draw_platforms();
-		}
-		cout << "#\n";
-		x_cursor = 0;
-		y_cursor++;
-	}
-	x_cursor = 0;
-	while (x_cursor < width)  // 20 # в ряд
-	{
-		cout << "#";
-		x_cursor++;
-	}
-	x_cursor = 0;
-	y_cursor = 0;
-	//cout << "x_player = " << x_player << " y_player = " << y_player;
-	fflush(stdout);
-}
-
 void draw_player()
 {
 	if (past_x_player == x_player && past_y_player == y_player)
@@ -444,22 +419,17 @@ int main()
 	setlocale(LC_ALL, "Russian");
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-	/*
-	x_generator();
-	y_generator();
-	*/
 
 	load();
 	draw();
-
 	while (1)
 	{
-		/*
-		is_on_any_platforms();
-		player_fall();
 		log();
 		draw_player();
 		draw_enemy();
-		*/
+		if (g == false)
+		{
+			player_fall();
+		}
 	}
 }

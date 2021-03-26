@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="map2.txt">
+    <Text Include="..\proverka\map2.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
   </ItemGroup>
