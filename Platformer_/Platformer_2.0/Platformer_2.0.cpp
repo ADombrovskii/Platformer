@@ -26,8 +26,6 @@ vector<int>x_platforms;
 random_device rd;
 mt19937 gen(rd());
 
-int number_of_platforms = 15;
-
 short y_player = 10;
 short x_player = 3;
 
@@ -189,6 +187,10 @@ void player_fall()
 {
 	past_y_player = y_player;
 	is_player_on_any_platforms();
+	if (is_player_on_any_platforms() == true)
+	{
+		fall_time = time() + 400;
+	}
 	if (time() > fall_time && is_player_on_any_platforms() == false)
 	{
 		fall_time = time() + 1000;
@@ -259,14 +261,13 @@ void log()
 				if (g == false)
 				{
 					is_keystrokes = true;
-					int w = time();
 					past_y_player = y_player;
 					if (jumpsCount > 0)
 					{
 						y_player--;
 						jumpsCount--;
 					}
-					fall_time = w + 1000;
+					fall_time = time() + 1000;
 					keystrokes_time = time() + 2000;
 				}
 				else if (g == true)
