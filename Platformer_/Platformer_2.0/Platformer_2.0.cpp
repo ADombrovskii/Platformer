@@ -19,10 +19,6 @@ int height = 20;
 int x_cursor;
 int y_cursor;
 
-vector<int>x_platforms_width;
-vector<int>y_platforms;
-vector<int>x_platforms;
-
 random_device rd;
 mt19937 gen(rd());
 
@@ -63,6 +59,15 @@ int jumpsCount = 0; // кол-во доступных прыжков
 
 bool g = false;
 
+struct platform
+{
+	int x;
+	int y;
+	int xw;
+};
+
+vector<platform>platforms;
+
 void load()
 {
 	string line;
@@ -71,11 +76,13 @@ void load()
 	{
 		while (getline(in, line))
 		{
-			x_platforms.push_back(stoi(line));
+			platform reading_platfom;
+			reading_platfom.x = stoi(line);
 			getline(in, line);
-			x_platforms_width.push_back(stoi(line));
+			reading_platfom.xw = stoi(line);
 			getline(in, line);
-			y_platforms.push_back(stoi(line));
+			reading_platfom.y = stoi(line);
+			platforms.push_back(reading_platfom);
 		}
 	}
 	in.close();     // закрываем файл
@@ -84,11 +91,11 @@ void load()
 
 void draw_platforms()
 {
-	for (int a = 0; a < x_platforms.size(); a++)
+	for (int a = 0; a < platforms.size(); a++)
 	{
-		if (y_cursor == y_platforms[a] && x_cursor == x_platforms[a])
+		if (y_cursor == platforms[a].y && x_cursor == platforms[a].x)
 		{
-			for (int i = 0; i < x_platforms_width[a]; i++)
+			for (int i = 0; i < platforms[a].xw; i++)
 			{
 				cout << "%";
 				x_cursor++;
@@ -132,10 +139,10 @@ void draw()
 bool is_player_on_any_platforms()
 {
 	bool platform_check = false;
-	for (int i = 0; i < x_platforms.size(); i++)
+	for (int i = 0; i < platforms.size(); i++)
 	{
-		bool x_correct = x_player >= x_platforms[i] && x_player < x_platforms_width[i] + x_platforms[i];
-		if (x_correct == true && y_player + 1 == y_platforms[i])
+		bool x_correct = x_player >= platforms[i].x && x_player < platforms[i].xw + platforms[i].x;
+		if (x_correct == true && y_player + 1 == platforms[i].y)
 		{
 			platform_check = true;
 		}
@@ -143,13 +150,13 @@ bool is_player_on_any_platforms()
 	return platform_check;
 }
 
-bool is_player_under_any_platforms()
+bool is_player_under_anplatforms()
 {
 	bool platform_check2 = false;
-	for (int i = 0; i < x_platforms.size(); i++)
+	for (int i = 0; i < platforms.size(); i++)
 	{
-		bool x_correct = x_player >= x_platforms[i] && x_player < x_platforms_width[i] + x_platforms[i];
-		if (x_correct == true && y_player - 1 == y_platforms[i])
+		bool x_correct = x_player >= platforms[i].x && x_player < platforms[i].xw + platforms[i].x;
+		if (x_correct == true && y_player - 1 == platforms[i].y)
 		{
 			platform_check2 = true;
 		}
@@ -160,9 +167,9 @@ bool is_player_under_any_platforms()
 bool left_enemy()
 {
 	is_player_near_platform = false;
-	for (int i = 0; i < x_platforms.size(); i++)
+	for (int i = 0; i < platforms.size(); i++)
 	{
-		if (x_platforms[i] - 1 == x_player && y_platforms[i] == y_player)
+		if (platforms[i].x - 1 == x_player && platforms[i].y == y_player)
 		{
 			is_player_near_platform = true;
 		}
@@ -173,9 +180,9 @@ bool left_enemy()
 bool right_enemy()
 {
 	is_player_near_platform2 = false;
-	for (int i = 0; i < x_platforms.size(); i++)
+	for (int i = 0; i < platforms.size(); i++)
 	{
-		if (x_platforms[i] + x_platforms_width[i] == x_player && y_platforms[i] == y_player)
+		if (platforms[i].x + platforms[i].xw == x_player && platforms[i].y == y_player)
 		{
 			is_player_near_platform2 = true;
 		}
@@ -200,7 +207,23 @@ void player_fall()
 
 void information_output()
 {
-	if (y_player == height - 1 || x_player == 0 || y_player == 0)
+	if ((y_player == height - 1 || x_player == 0 || y_player == 0) && g == true)
+	{
+		COORD position = { 0, 25 }; //позиция x и y
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(hConsole, position);
+		cout << "Вы проиграли";
+		fflush(stdout);
+	}
+	else if (x_player >= width - 1 && g == true)
+	{
+		COORD position = { 0, 25 }; //позиция x и y
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(hConsole, position);
+		cout << "Вы выйграли автомобиль";
+		fflush(stdout);
+	}
+	else if (y_player == height - 1 || x_player == 0 || y_player == 0)
 	{
 		COORD position = { 0, 25 }; //позиция x и y
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -209,7 +232,7 @@ void information_output()
 		fflush(stdout);
 		ExitProcess(0);
 	}
-	if (x_player >= width - 1)
+	else if (x_player >= width - 1)
 	{
 		COORD position = { 0, 25 }; //позиция x и y
 		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -217,6 +240,14 @@ void information_output()
 		cout << "Вы выйграли автомобиль";
 		fflush(stdout);
 		ExitProcess(0);
+	}
+	else
+	{
+		COORD position = { 0, 25 }; //позиция x и y
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleCursorPosition(hConsole, position);
+		cout << "                                               ";
+		fflush(stdout);
 	}
 	COORD position = { 0, 20 }; //позиция x и y
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -254,7 +285,7 @@ void log()
 				x_player++;
 			}
 		}
-		if (is_player_under_any_platforms() == false)
+		if (is_player_under_anplatforms() == false)
 		{
 			if (checking_the_keyboard == 'w')
 			{
@@ -318,14 +349,14 @@ void log()
 			fflush(stdout);
 		}
 	}
-	for (int i = 0; i < x_platforms.size(); i++)
+	for (int i = 0; i < platforms.size(); i++)
 	{
-		if (x_enemy == x_platforms[i] + x_platforms_width[i] && y_enemy == y_platforms[i])
+		if (x_enemy == platforms[i].x + platforms[i].xw && y_enemy == platforms[i].y)
 		{
 			y_enemy--;
 			enemy_rose = true;
 		}
-		else if (x_enemy == x_platforms[i] - 1 && y_enemy + 1 == y_platforms[i] && enemy_rose == true)
+		else if (x_enemy == platforms[i].x - 1 && y_enemy + 1 == platforms[i].y && enemy_rose == true)
 		{
 			y_enemy++;
 			enemy_rose = false;
