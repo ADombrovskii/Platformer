@@ -71,7 +71,7 @@ vector<platform>platforms;
 void load()
 {
 	string line;
-	ifstream in("C:\\Users\\User\\Desktop\\a.txt"); // окрываем файл для чтения
+	ifstream in("C:\\Users\\user\\Desktop\\a.txt"); // окрываем файл для чтения
 	if (in.is_open())
 	{
 		while (getline(in, line))

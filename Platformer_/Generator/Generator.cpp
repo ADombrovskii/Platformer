@@ -62,7 +62,7 @@ int main()
 	y_generator();
 
 	ofstream out;          // поток для записи
-	out.open("C:\\Users\\User\\Desktop\\a.txt"); // окрываем файл для записи
+	out.open("C:\\Users\\user\\Desktop\\a.txt"); // окрываем файл для записи
 	if (out.is_open())
 	{
 		for (int i = 0; i < number_of_platforms; i++)
