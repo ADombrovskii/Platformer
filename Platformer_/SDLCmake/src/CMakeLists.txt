@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.22.3)
+project(platformer)
+add_executable(platformer SDL2_test.cpp)
+include_directories("C:\\SDL2-2.0.9\\include")
+target_link_libraries(platformer "C:\\SDL2-2.0.9\\lib\\x64\\SDL.dll")
